@@ -1,0 +1,84 @@
+<html>
+<head>
+	<title>
+		Search Wiki
+	</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+	<input type="text" name="search" align="center" id="field">
+	<button id="search_btn">
+		Search
+	</button>
+	<table id="tab" >
+		<tr>
+			<td>
+				Sr. No.
+			</td>
+			<td>
+				Title
+			</td>
+			<td>
+				Wordcount
+			</td>
+			<td>
+				Link
+			</td>
+			<td>
+				Snippet
+			</td>
+		</tr>
+	</table>
+	<script type="text/javascript">
+		var search = document.getElementById('search_btn');
+		search.addEventListener("click",searchwiki);
+
+		function searchwiki(){
+			for(var i=tab.rows.length-1;i>0;i--){
+				tab.deleteRow(i);
+			}
+			var val = document.getElementById('field').value;
+			//val = val.replace(/\s+/g,'%20');
+			console.log(val);
+			
+			$.ajax({
+			  url: 'https://en.wikipedia.org/w/api.php',
+			  data: { action: 'query', list: 'search', srsearch: val, srlimit:'20', format: 'json' },
+			  dataType: 'jsonp',
+			  success: function (x) {
+			    var len = x.continue.sroffset;
+			    for(var i=0;i<len;i++){
+			    	var tr = document.createElement('tr');
+					var td1 = document.createElement('td');
+					var td2 = document.createElement('td');
+					var td3 = document.createElement('td');
+					var td4 = document.createElement('a');
+					var td5 = document.createElement('td');
+					td1.textContent = i+1;
+					tr.appendChild(td1);
+
+					td2.textContent = x.query.search[i].title;
+					tr.appendChild(td2);
+
+					td3.textContent = x.query.search[i].wordcount;
+					tr.appendChild(td3);
+
+					var kk = x.query.search[i].title;
+					kk = kk.replace(/\s+/g,'_')
+					td4.textContent = "Go to wiki page";
+					td4.setAttribute('href','https://en.wikipedia.org/wiki/'+kk);
+					tr.appendChild(td4);
+
+					td5.innerHTML = x.query.search[i].snippet;
+					tr.appendChild(td5);
+
+					tab.appendChild(tr);
+			    }
+			    console.log(x);
+			  }
+			});
+
+		}
+	</script>
+</body>
+</html>
